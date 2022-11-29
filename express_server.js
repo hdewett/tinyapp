@@ -2,17 +2,16 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+app.set("view engine", "ejs");
+
 function generateRandomString() {
-  const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  let result = ''
+  const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let result = '';
   for (let i=0; i<6; i++) {
     result += characters[Math.floor(Math.random() * characters.length)];
   }
   return result;
 }
-
-
-app.set("view engine", "ejs");
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -58,5 +57,8 @@ app.get("/u/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
-  res.redirect("/urls/:id");
+  const randomString = generateRandomString()
+  const longURL = req.body.longURL
+  urlDatabase[randomString] = longURL
+  res.redirect(`/urls/${randomString}`);
 });
