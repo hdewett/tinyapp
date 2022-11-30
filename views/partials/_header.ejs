@@ -18,16 +18,27 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-    <form  action="/login" method="POST">
-      <div>
-        <input
-          type="text"
-          name="username"
-          placeholder="username"
-          style="width: 300px; height: 45px; margin: 1em"
-        />
-        <button type="submit" class="btn btn-primary" style="height: 45px">Login</button>
-      </div>
-    </form>
+    <div>
+      <%if (username) {%>
+        <h5>Logged in as: <%= username %></h5>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-primary" style="height: 45px">logout</button>
+        </form>
+      <%} else {%>
+        <form  action="/login" method="POST">
+          <div>
+            <input
+              type="text"
+              name="username"
+              placeholder="username"
+              style="width: 300px; height: 45px; margin: 1em"
+            />
+            <button type="submit" class="btn btn-primary" style="height: 45px">Login</button>
+          </div>
+        </form>
+      <% } %>
+      
+
+    </div>
   </nav>
 </header>
