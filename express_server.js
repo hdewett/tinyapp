@@ -31,15 +31,15 @@ const urlDatabase = {
 
 //for registration
 const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
+  custard: {
+    id: "custard",
+    email: "custard@steak.com",
+    password: "ilovesteak",
   },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
+  skipper: {
+    id: "skipper",
+    email: "skipper@bread.com",
+    password: "ilove-bread",
   },
 };
 
@@ -48,7 +48,7 @@ const findUserByEmail = function (userEmail) {
   const usersKeys = Object.keys(users);
   for (let key of usersKeys) {
     if (userEmail === users[key].email){
-      return true;
+      return users[key];
     }
     else {
       return false;
@@ -70,15 +70,12 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  // console.log(req.cookies)
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
-  // console.log(templateVars["user"])
   res.render("urls_index", templateVars);
 });
 
 //save longURL to database
 app.post("/urls", (req, res) => {
-  // console.log(req.body); // Log the POST request body to the console
   const randomString = generateRandomString()
   const longURL = req.body.longURL
   urlDatabase[randomString] = longURL
@@ -103,7 +100,6 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //edits url
 app.post("/urls/:id/edit", (req, res) => {
-  // console.log(req.body);
   const longURL = req.body.longURL
   urlDatabase[req.params.id] = longURL
   res.redirect("/urls")
@@ -145,15 +141,23 @@ app.get("/login", (req, res) => {
 
 //login route
 app.post("/login", (req, res) => {
-  // console.log(req.body.username)
-  console.log("posted to login")
-  res.cookie("username", req.body.username)
-  res.redirect("/urls")
+  user = findUserByEmail(req.body.email)
+  if (user){
+    if(req.body.password === user.password){
+      res.cookie("user_id", user.id)
+      res.redirect("/urls")
+    }
+    else {
+      res.sendStatus(403)
+    }
+  } else {
+    res.sendStatus(403)
+  }
 })
 
 //logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body.username)
+  res.clearCookie("user_id")
   res.redirect("/urls")
 })
 
