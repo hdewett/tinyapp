@@ -97,6 +97,11 @@ app.get("/register", (req, res) => {
   res.render("user_registration", templateVars);
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = {user: "" };
+  res.render("login", templateVars);
+});
+
 //save longURL to database
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
