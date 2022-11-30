@@ -76,32 +76,6 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/new", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
-});
-
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] };
-  res.render("urls_show", templateVars);
-});
-
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
-  res.redirect(longURL);
-});
-
-//takes me to registration page and calls the user_registration.ejs
-app.get("/register", (req, res) => {
-  const templateVars = {user: "" };
-  res.render("user_registration", templateVars);
-});
-
-app.get("/login", (req, res) => {
-  const templateVars = {user: "" };
-  res.render("login", templateVars);
-});
-
 //save longURL to database
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Log the POST request body to the console
@@ -111,6 +85,15 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomString}`);
 });
 
+app.get("/urls/new", (req, res) => {
+  const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
+  res.render("urls_new", templateVars);
+});
+
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: users[req.cookies["user_id"]] };
+  res.render("urls_show", templateVars);
+});
 
 //delete url
 app.post("/urls/:id/delete", (req, res) => {
@@ -126,19 +109,16 @@ app.post("/urls/:id/edit", (req, res) => {
   res.redirect("/urls")
 })
 
-//login route
-app.post("/login", (req, res) => {
-  // console.log(req.body.username)
-  res.cookie("username", req.body.username)
-  res.redirect("/urls")
-})
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id]
+  res.redirect(longURL);
+});
 
-//logout
-app.post("/logout", (req, res) => {
-  res.clearCookie("username", req.body.username)
-  res.redirect("/urls")
-})
-
+//takes me to registration page and calls the user_registration.ejs
+app.get("/register", (req, res) => {
+  const templateVars = {user: "" };
+  res.render("user_registration", templateVars);
+});
 //registration route
 app.post("/register", (req, res) => {
   if (req.body.email === "" || req.body.password === "" || findUserByEmail(req.body.email)) {
@@ -157,3 +137,23 @@ app.post("/register", (req, res) => {
     res.redirect("/urls")
   }
 })
+
+app.get("/login", (req, res) => {
+  const templateVars = {user: "" };
+  res.render("login", templateVars);
+});
+
+//login route
+app.post("/login", (req, res) => {
+  // console.log(req.body.username)
+  console.log("posted to login")
+  res.cookie("username", req.body.username)
+  res.redirect("/urls")
+})
+
+//logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("username", req.body.username)
+  res.redirect("/urls")
+})
+
