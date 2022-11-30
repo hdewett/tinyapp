@@ -2,9 +2,13 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 var cookieParser = require('cookie-parser');
+
 app.use(cookieParser())
+
 app.set("view engine", "ejs");
+
 app.use(express.urlencoded({ extended: true }));
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -39,6 +43,18 @@ const users = {
   },
 };
 
+//takes in an email and return the entire user object or null if not found
+const findUserByEmail = function (userEmail) {
+  const usersKeys = Object.keys(users);
+  for (let key of usersKeys) {
+    if (userEmail === users[key].email){
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+};
 
 //Handlers below
 app.get("/", (req, res) => {
@@ -120,10 +136,19 @@ app.post("/logout", (req, res) => {
 
 //registration route
 app.post("/register", (req, res) => {
-  const randomString = generateRandomString()
-  const user_id = randomString
-  users[user_id] = {id: user_id, email: req.body.email, password: req.body.password}
-  // console.log(users);
-  res.cookie("user_id", user_id) 
-  res.redirect("/urls")
+  if (req.body.email === "" || req.body.password === "" || findUserByEmail(req.body.email)) {
+    res.sendStatus(400)
+  }
+  else {
+    const randomUserID = generateRandomString()
+    const user_id = randomUserID
+  
+    users[user_id] = {
+      id: user_id,
+      email: req.body.email,
+      password: req.body.password
+    }
+    res.cookie("user_id", user_id) 
+    res.redirect("/urls")
+  }
 })

@@ -19,7 +19,7 @@
       </div>
     </div>
     <div>
-      <%if (user.email) {%>
+      <%if (user) {%>
         <h5>Logged in as: <%= user.email %></h5>
         <form action="/logout" method="POST">
           <button type="submit" class="btn btn-primary" style="height: 45px">logout</button>
