@@ -2,11 +2,14 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 var cookieParser = require('cookie-parser');
-
 app.use(cookieParser())
-
 app.set("view engine", "ejs");
+app.use(express.urlencoded({ extended: true }));
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
 
+//this is the function to create unique short urls
 function generateRandomString() {
   const characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
   let result = '';
@@ -16,19 +19,30 @@ function generateRandomString() {
   return result;
 }
 
+//stores urls
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-app.use(express.urlencoded({ extended: true }));
+//for registration
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+};
 
+
+//Handlers below
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
-
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -51,8 +65,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id]
+  res.redirect(longURL);
+});
+
+//takes me to registration page and calls the user_registration.ejs
+app.get("/register", (req, res) => {
+  const templateVars = {username: "" };
+  res.render("user_registration", templateVars);
 });
 
 //save longURL to database
@@ -64,10 +89,6 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomString}`);
 });
 
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
-  res.redirect(longURL);
-});
 
 //delete url
 app.post("/urls/:id/delete", (req, res) => {
@@ -93,5 +114,10 @@ app.post("/login", (req, res) => {
 //logout
 app.post("/logout", (req, res) => {
   res.clearCookie("username", req.body.username)
+  res.redirect("/urls")
+})
+
+//registration route
+app.post("/register", (req, res) => {
   res.redirect("/urls")
 })
