@@ -76,15 +76,28 @@ app.get("/urls", (req, res) => {
 
 //save longURL to database
 app.post("/urls", (req, res) => {
+
+if (req.cookies["user_id"]) {
   const randomString = generateRandomString()
   const longURL = req.body.longURL
   urlDatabase[randomString] = longURL
   res.redirect(`/urls/${randomString}`);
+}
+else {
+  res.send("You must be logged in to shorten URLs.");
+}
+
 });
 
+// CREATE NEW URL PAGE.
 app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.cookies["user_id"]] };
-  res.render("urls_new", templateVars);
+  if (req.cookies["user_id"]) {
+    res.render("urls_new", templateVars);
+  }
+  else {
+    res.redirect("/login");
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -106,14 +119,25 @@ app.post("/urls/:id/edit", (req, res) => {
 })
 
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id]
-  res.redirect(longURL);
+  
+  if (urlDatabase[req.params.id] === undefined) {
+    res.send("No URL is associated with this id.");
+  }
+  else{
+    const longURL = urlDatabase[req.params.id]
+    res.redirect(longURL);
+  }
 });
 
 //takes me to registration page and calls the user_registration.ejs
 app.get("/register", (req, res) => {
   const templateVars = {user: "" };
-  res.render("user_registration", templateVars);
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls")
+  }
+  else {
+    res.render("user_registration", templateVars);
+  }
 });
 //registration route
 app.post("/register", (req, res) => {
@@ -135,8 +159,14 @@ app.post("/register", (req, res) => {
 })
 
 app.get("/login", (req, res) => {
-  const templateVars = {user: "" };
-  res.render("login", templateVars);
+  const templateVars = { user: users[req.cookies["user_id"]] };
+
+  if (req.cookies["user_id"]) {
+    res.redirect("/urls")
+  }
+  else{
+    res.render("login", templateVars);
+  }
 });
 
 //login route
