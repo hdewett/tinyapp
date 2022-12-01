@@ -52,7 +52,7 @@ app.get("/urls", (req, res) => {
   
 });
 
-//save longURL and userID to urlDatabase
+//save longURL and userID to urlDatabase, and shorten url and redirects
 app.post("/urls", (req, res) => {
   if (req.session["user_id"]) {
     const randomString = generateRandomString();
@@ -65,7 +65,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// Create new URL page route.
+// Create new URL page route
 app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.session["user_id"]] };
   if (req.session["user_id"]) {
@@ -92,7 +92,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-// URL edit POST.
+// URL edit POST, updates longURL.
 app.post("/urls/:id/edit", (req, res) => {
   let userURLs = urlsForUser(req.session["user_id"], urlDatabase);
   if (userURLs[req.params.id]) {
