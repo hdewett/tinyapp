@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require('cookie-parser');
+const bcrypt = require("bcryptjs");
 
 app.use(cookieParser());
 
@@ -24,30 +25,10 @@ const generateRandomString = function() {
 };
 
 //stores urls
-const urlDatabase = {
-  "b2xVn2": {
-    longURL: "http://www.lighthouselabs.ca",
-    userID: "custard",
-  },
-  "9sm5xK": {
-    longURL: "http://www.google.com",
-    userID: "skipper",
-  },
-};
+const urlDatabase = {};
 
 //for registration
-const users = {
-  custard: {
-    id: "custard",
-    email: "custard@steak.com",
-    password: "ilovesteak",
-  },
-  skipper: {
-    id: "skipper",
-    email: "skipper@bread.com",
-    password: "ilovebread",
-  },
-};
+const users = {};
 
 //takes in an email and return the entire user object or null if not found
 const findUserByEmail = function(userEmail) {
@@ -182,6 +163,7 @@ app.get("/register", (req, res) => {
 });
 //registration route
 app.post("/register", (req, res) => {
+
   if (req.body.email === "" || req.body.password === "" || findUserByEmail(req.body.email)) {
     res.sendStatus(400);
   } else {
@@ -191,11 +173,12 @@ app.post("/register", (req, res) => {
     users[user_id] = {
       id: user_id,
       email: req.body.email,
-      password: req.body.password
+      password: bcrypt.hashSync(req.body.password, 10),
     };
     res.cookie("user_id", user_id);
     res.redirect("/urls");
   }
+  console.log(users);
 });
 
 app.get("/login", (req, res) => {
@@ -212,7 +195,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   let user = findUserByEmail(req.body.email);
   if (user) {
-    if (req.body.password === user.password) {
+    if (bcrypt.compareSync(req.body.password, user.password)) {
       res.cookie("user_id", user.id);
       res.redirect("/urls");
     } else {
