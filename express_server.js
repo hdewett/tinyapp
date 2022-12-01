@@ -18,25 +18,25 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-//stores urls
 const urlDatabase = {};
 
-//for registration
 const users = {};
 
-//Handlers below
+// GET and POST routes below:
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// This route is just for fun
 app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
+  res.send("<html><body>You've found a secret page! <b><a href=\"/urls\">click here</a></b> to redirect to the home page.</body></html>\n");
 });
 
+// Home
 app.get("/urls", (req, res) => {
 
   if (req.session["user_id"]) {
@@ -52,7 +52,7 @@ app.get("/urls", (req, res) => {
   
 });
 
-//save longURL to database
+//save longURL and userID to urlDatabase
 app.post("/urls", (req, res) => {
   if (req.session["user_id"]) {
     const randomString = generateRandomString();
@@ -65,7 +65,7 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// CREATE NEW URL PAGE.
+// Create new URL page route.
 app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, user: users[req.session["user_id"]] };
   if (req.session["user_id"]) {
@@ -75,6 +75,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
+// Edit URL page route.
 app.get("/urls/:id", (req, res) => {
 
   let userURLs = urlsForUser(req.session["user_id"], urlDatabase);
@@ -91,18 +92,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-//delete url
-app.post("/urls/:id/delete", (req, res) => {
-  let userURLs = urlsForUser(req.session["user_id"], urlDatabase);
-  if (userURLs[req.params.id]) {
-    delete urlDatabase[req.params.id];
-    res.redirect("/urls");
-  } else {
-    res.send("This URL does not belong to you.");
-  }
-});
-
-//edits url
+// URL edit POST.
 app.post("/urls/:id/edit", (req, res) => {
   let userURLs = urlsForUser(req.session["user_id"], urlDatabase);
   if (userURLs[req.params.id]) {
@@ -114,6 +104,18 @@ app.post("/urls/:id/edit", (req, res) => {
   }
 });
 
+// delete url route.
+app.post("/urls/:id/delete", (req, res) => {
+  let userURLs = urlsForUser(req.session["user_id"], urlDatabase);
+  if (userURLs[req.params.id]) {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls");
+  } else {
+    res.send("This URL does not belong to you.");
+  }
+});
+
+// Redirects to the longURL website.
 app.get("/u/:id", (req, res) => {
   
   if (urlDatabase[req.params.id] === undefined) {
@@ -124,7 +126,7 @@ app.get("/u/:id", (req, res) => {
   }
 });
 
-//takes me to registration page and calls the user_registration.ejs
+// Takes the user to registration page and calls the user_registration.ejs.
 app.get("/register", (req, res) => {
   const templateVars = {user: "" };
   if (req.session["user_id"]) {
@@ -133,7 +135,8 @@ app.get("/register", (req, res) => {
     res.render("user_registration", templateVars);
   }
 });
-//registration route
+
+// Registration POST route.
 app.post("/register", (req, res) => {
 
   if (req.body.email === "" || req.body.password === "" || getUserByEmail(req.body.email, users)) {
@@ -152,6 +155,7 @@ app.post("/register", (req, res) => {
   }
 });
 
+// Login page route.
 app.get("/login", (req, res) => {
   const templateVars = { user: users[req.session["user_id"]] };
 
@@ -162,7 +166,7 @@ app.get("/login", (req, res) => {
   }
 });
 
-//login route
+// Login POST route.
 app.post("/login", (req, res) => {
   let user = getUserByEmail(req.body.email, users);
   if (user) {
@@ -177,7 +181,7 @@ app.post("/login", (req, res) => {
   }
 });
 
-//logout
+// Logout POST route.
 app.post("/logout", (req, res) => {
   res.clearCookie("session");
   res.clearCookie("session.sig");
