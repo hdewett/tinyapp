@@ -24,10 +24,9 @@ const users = {};
 
 // GET and POST routes below:
 app.get("/", (req, res) => {
-  if (req.session["user_id"]){
+  if (req.session["user_id"]) {
     res.redirect("/urls");
-  }
-  else {
+  } else {
     res.redirect("/login");
   }
 });
